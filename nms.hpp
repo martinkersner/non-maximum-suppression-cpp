@@ -1,9 +1,11 @@
 // Martin Kersner, m.kersner@gmail.com
 // 2016/12/18
 
+#ifndef NMS_HPP__
+#define NMS_HPP__
+
 #include <vector>
 #include <numeric>
-
 #include <opencv2/opencv.hpp>
 
 enum PointInRectangle {XMIN, YMIN, XMAX, YMAX};
@@ -40,4 +42,4 @@ std::vector<int> RemoveDuplicates(std::vector<int>, std::vector<int>);
 
 std::vector<cv::Rect> MakeRects(std::vector<std::vector<float> >, std::vector<int>);
 
-cv::Rect VecToRect(std::vector<float>);
+#endif // NMS_HPP__

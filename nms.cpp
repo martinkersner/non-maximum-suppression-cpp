@@ -235,7 +235,3 @@ std::vector<cv::Rect> MakeRects(std::vector<std::vector<float> > boxes, std::vec
 
 	return rects;
 }
-
-cv::Rect VecToRect(std::vector<float> vec) {
-	return cv::Rect(cv::Point(vec[0], vec[1]), cv::Point(vec[2], vec[3]));
-}
