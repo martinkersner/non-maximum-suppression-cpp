@@ -40,6 +40,9 @@ std::vector<int> WhereLarger(std::vector<float>, float);
 
 std::vector<int> RemoveDuplicates(std::vector<int>, std::vector<int>);
 
-std::vector<cv::Rect> MakeRects(std::vector<std::vector<float> >, std::vector<int>);
+std::vector<cv::Rect> BoxesToRectangles(std::vector<std::vector<float> >);
+
+template <typename T>
+std::vector<T> FilterVector(const std::vector<T>, const std::vector<int>);
 
 #endif // NMS_HPP__
