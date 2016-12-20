@@ -4,14 +4,6 @@
 
 #include "nms.hpp"
 
-template <typename T>
-void DV(const std::vector<T> vec) {
-
-	for (T tmp : vec) {
-		std::cout << tmp << std::endl;
-	}
-}
-
 std::vector<cv::Rect> nms(std::vector<std::vector<float> > boxes, float threshold) {
 	if (boxes.empty()) { 
 		return std::vector<cv::Rect>();
@@ -43,17 +35,17 @@ std::vector<cv::Rect> nms(std::vector<std::vector<float> > boxes, float threshol
 		// the bounding box and the smallest (x, y) coordinates
 		// for the end of the bounding box
 		std::vector<int> idxsWoLast = RemoveLast(idxs);
-		std::vector<float> xx1 = Maximum(x1[i], AccessVectorWithIdx(x1, idxsWoLast));
-		std::vector<float> yy1 = Maximum(y1[i], AccessVectorWithIdx(y1, idxsWoLast));
-		std::vector<float> xx2 = Minimum(x2[i], AccessVectorWithIdx(x2, idxsWoLast));
-		std::vector<float> yy2 = Maximum(y2[i], AccessVectorWithIdx(y2, idxsWoLast));
+		std::vector<float> xx1 = Maximum(x1[i], CopyByIndexes(x1, idxsWoLast));
+		std::vector<float> yy1 = Maximum(y1[i], CopyByIndexes(y1, idxsWoLast));
+		std::vector<float> xx2 = Minimum(x2[i], CopyByIndexes(x2, idxsWoLast));
+		std::vector<float> yy2 = Maximum(y2[i], CopyByIndexes(y2, idxsWoLast));
 
 		// compute the width and height of the bounding box
-		std::vector<float> w = MaxSubtract(xx2, xx1, 0);
-		std::vector<float> h = MaxSubtract(yy2, yy1, 0);
+		std::vector<float> w = Maximum(0, Subtract(xx2, xx1));
+		std::vector<float> h = Maximum(0, Subtract(yy2, yy1));
 		
 		// compute the ratio of overlap
-		std::vector<float> overlap = MultiplyDivide(w, h, AccessVectorWithIdx(area, idxsWoLast));
+		std::vector<float> overlap = Divide(Multiply(w, h), CopyByIndexes(area, idxsWoLast));
 
 		// delete all indexes from the index list that have
 		std::vector<int> deleteIdxs = WhereLarger(overlap, threshold);
@@ -74,11 +66,10 @@ std::vector<float> GetPointFromRect(std::vector<std::vector<float> > rect, Point
 	return points;
 }
 
-//area = (x2 - x1 + 1) * (y2 - y1 + 1)
 std::vector<float> ComputeArea(std::vector<float> x1,
-															 std::vector<float> y1,
-															 std::vector<float> x2,
-															 std::vector<float> y2) {
+                               std::vector<float> y1,
+                               std::vector<float> x2,
+                               std::vector<float> y2) {
 
 	std::vector<float> area;
 	int len = x1.size();
@@ -93,7 +84,6 @@ std::vector<float> ComputeArea(std::vector<float> x1,
 
 template <typename T>
 std::vector<int> argsort(const std::vector<T> &v) {
-
   // initialize original index locations
   std::vector<int> idx(v.size());
   std::iota(idx.begin(), idx.end(), 0);
@@ -105,7 +95,6 @@ std::vector<int> argsort(const std::vector<T> &v) {
   return idx;
 }
 
-//xx1 = np.maximum(x1[i], x1[idxs[:last]])
 std::vector<float> Maximum(float num, std::vector<float> vec) {
 	std::vector<float> maxVec= vec;
 	int len = vec.size();
@@ -132,7 +121,7 @@ std::vector<float> Minimum(float num, std::vector<float> vec) {
 	return minVec;
 }
 
-std::vector<float> AccessVectorWithIdx(std::vector<float> vec, std::vector<int> idxs) {
+std::vector<float> CopyByIndexes(std::vector<float> vec, std::vector<int> idxs) {
 	std::vector<float> resultVec;
 
 	for (int idx : idxs) {
@@ -147,31 +136,38 @@ std::vector<int> RemoveLast(std::vector<int> vec) {
 	return vec;
 }
 
-//w = np.maximum(0, xx2 - xx1 + 1)
-std::vector<float> MaxSubtract(std::vector<float> vec1, std::vector<float> vec2, int minValue) {
-	std::vector<float> sizeVec;
-
-	float tmpSize;
+std::vector<float> Subtract(std::vector<float> vec1, std::vector<float> vec2) {
+	std::vector<float> result;
 	int len = vec1.size();
 
 	for (size_t idx = 0; idx < len; ++idx) {
-		tmpSize = vec1[idx] - vec2[idx] + 1;
-		if (tmpSize < minValue) { tmpSize = minValue; }
-		sizeVec.push_back(tmpSize);
+		result.push_back(vec1[idx] - vec2[idx] + 1);
 	}
 
-	return sizeVec;
+	return result;
 }
 
-std::vector<float> MultiplyDivide(std::vector<float> vec1,
-		                              std::vector<float> vec2,
-		                              std::vector<float> vec3) {
+std::vector<float> Multiply(std::vector<float> vec1,
+		                        std::vector<float> vec2) {
 
 	std::vector<float> resultVec;
 	int len = vec1.size();
 
 	for (size_t idx = 0; idx < len; ++idx) {
-		resultVec.push_back(vec1[idx] * vec2[idx] / vec3[idx]);
+		resultVec.push_back(vec1[idx] * vec2[idx]);
+	}
+
+	return resultVec;
+}
+
+std::vector<float> Divide(std::vector<float> vec1,
+		                      std::vector<float> vec2) {
+
+	std::vector<float> resultVec;
+	int len = vec1.size();
+
+	for (size_t idx = 0; idx < len; ++idx) {
+		resultVec.push_back(vec1[idx] / vec2[idx]);
 	}
 
 	return resultVec;

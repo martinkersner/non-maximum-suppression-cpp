@@ -26,15 +26,15 @@ std::vector<float> Maximum(float, std::vector<float>);
 
 std::vector<float> Minimum(float, std::vector<float>);
 
-std::vector<float> AccessVectorWithIdx(std::vector<float>, std::vector<int>);
+std::vector<float> CopyByIndexes(std::vector<float>, std::vector<int>);
 
 std::vector<int> RemoveLast(std::vector<int>);
 
-std::vector<float> MaxSubtract(std::vector<float>, std::vector<float>, int);
+std::vector<float> Subtract(std::vector<float>, std::vector<float>);
 
-std::vector<float> MultiplyDivide(std::vector<float> vec1,
-		                             std::vector<float> vec2,
-		                             std::vector<float> vec3);
+std::vector<float> Multiply(std::vector<float> vec1, std::vector<float> vec2);
+
+std::vector<float> Divide(std::vector<float> vec1, std::vector<float> vec2);
 
 std::vector<int> WhereLarger(std::vector<float>, float);
 
