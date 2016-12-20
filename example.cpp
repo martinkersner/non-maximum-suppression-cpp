@@ -9,7 +9,7 @@
 
 int main() {
 	// initialization
-	cv::Mat imgBefore(cv::Size(600,600), cv::DataType<float>::type);
+	cv::Mat imgBefore(cv::Size(500, 500), cv::DataType<float>::type);
 	cv::Mat imgAfter = imgBefore.clone();
 	float threshold	= 0.5;
 	std::vector<std::vector<float> > rectangles =
