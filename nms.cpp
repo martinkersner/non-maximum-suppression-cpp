@@ -37,7 +37,7 @@ std::vector<cv::Rect> nms(std::vector<std::vector<float> > boxes, float threshol
 		// index value to the list of picked indexes
 		last = idxs.size() - 1;	
 		i    = idxs[last];
-		pick.insert(pick.end(), i);
+		pick.push_back(i);
 
 		// find the largest (x, y) coordinates for the start of
 		// the bounding box and the smallest (x, y) coordinates
@@ -68,7 +68,7 @@ std::vector<float> GetPointFromRect(std::vector<std::vector<float> > rect, Point
 	std::vector<float> points;
 
 	for (std::vector<float> p: rect)  {
-		points.insert(points.end(), p[pos]);
+		points.push_back(p[pos]);
 	}
 
 	return points;
@@ -84,7 +84,7 @@ std::vector<float> ComputeArea(std::vector<float> x1,
 
 	for (size_t idx = 0; idx < x1.size(); ++idx) {
 		float tmp_area = (x2[idx] - x1[idx] + 1) * (y2[idx] - y1[idx] + 1);
-		area.insert(area.end(), tmp_area);
+		area.push_back(tmp_area);
 	}
 	
 	return area;
@@ -133,7 +133,7 @@ std::vector<float> AccessVectorWithIdx(std::vector<float> vec, std::vector<int> 
 	std::vector<float> final_vec;
 
 	for (int idx : idxs) {
-		final_vec.insert(final_vec.end(), vec[idx]);
+		final_vec.push_back(vec[idx]);
 }
 
 	return final_vec;
@@ -153,7 +153,7 @@ std::vector<float> MaxSubtract(std::vector<float> vec1, std::vector<float> vec2,
 	for (size_t idx = 0; idx < vec1.size(); ++idx) {
 		tmpSize = vec1[idx] - vec2[idx] + 1;
 		if (tmpSize < minValue) { tmpSize = minValue; }
-		sizeVec.insert(sizeVec.end(), tmpSize);
+		sizeVec.push_back(tmpSize);
 	}
 
 	return sizeVec;
@@ -165,7 +165,7 @@ std::vector<float> MultiplyDivide(std::vector<float> vec1,
 
 	std::vector<float> resultVec;
 	for (size_t idx = 0; idx < vec1.size(); ++idx) {
-		resultVec.insert(resultVec.end(), vec1[idx] * vec2[idx] / vec3[idx]);
+		resultVec.push_back(vec1[idx] * vec2[idx] / vec3[idx]);
 	}
 
 	return resultVec;
@@ -176,7 +176,7 @@ std::vector<int> WhereLarger(std::vector<float> vec, float threshold) {
 
 	for (size_t idx = 0; idx < vec.size(); ++idx) {
 		if (vec[idx] > threshold) {
-			resultVec.insert(resultVec.end(), idx);
+			resultVec.push_back(idx);
 		}
 	}
 
