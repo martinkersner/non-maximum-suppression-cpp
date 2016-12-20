@@ -58,7 +58,7 @@ std::vector<cv::Rect> nms(std::vector<std::vector<float> > boxes, float threshol
 		// delete all indexes from the index list that have
 		std::vector<int> deleteIdxs = WhereLarger(overlap, threshold);
 		deleteIdxs.push_back(last);
-		idxs = RemoveDuplicates(idxs, deleteIdxs);
+		idxs = RemoveByIndexes(idxs, deleteIdxs);
 	}
 
 	return BoxesToRectangles(FilterVector(boxes, pick));
@@ -81,10 +81,11 @@ std::vector<float> ComputeArea(std::vector<float> x1,
 															 std::vector<float> y2) {
 
 	std::vector<float> area;
+	int len = x1.size();
 
-	for (size_t idx = 0; idx < x1.size(); ++idx) {
-		float tmp_area = (x2[idx] - x1[idx] + 1) * (y2[idx] - y1[idx] + 1);
-		area.push_back(tmp_area);
+	for (size_t idx = 0; idx < len; ++idx) {
+		float tmpArea = (x2[idx] - x1[idx] + 1) * (y2[idx] - y1[idx] + 1);
+		area.push_back(tmpArea);
 	}
 	
 	return area;
@@ -106,37 +107,39 @@ std::vector<int> argsort(const std::vector<T> &v) {
 
 //xx1 = np.maximum(x1[i], x1[idxs[:last]])
 std::vector<float> Maximum(float num, std::vector<float> vec) {
-	std::vector<float> max_vec= vec;
+	std::vector<float> maxVec= vec;
+	int len = vec.size();
 
-	for (std::size_t idx = 0; idx < vec.size(); ++idx) {
+	for (std::size_t idx = 0; idx < len; ++idx) {
 		if (vec[idx] < num) {
-			max_vec[idx] = num;
+			maxVec[idx] = num;
 		}
 	}
 
-	return max_vec;
+	return maxVec;
 }
 
 std::vector<float> Minimum(float num, std::vector<float> vec) {
-	std::vector<float> min_vec= vec;
+	std::vector<float> minVec= vec;
+	int len = vec.size();
 
-	for (std::size_t idx = 0; idx < vec.size(); ++idx) {
+	for (std::size_t idx = 0; idx < len; ++idx) {
 		if (vec[idx] > num) {
-			min_vec[idx] = num;
+			minVec[idx] = num;
 		}
 	}
 
-	return min_vec;
+	return minVec;
 }
 
 std::vector<float> AccessVectorWithIdx(std::vector<float> vec, std::vector<int> idxs) {
-	std::vector<float> final_vec;
+	std::vector<float> resultVec;
 
 	for (int idx : idxs) {
-		final_vec.push_back(vec[idx]);
+		resultVec.push_back(vec[idx]);
 }
 
-	return final_vec;
+	return resultVec;
 }
 
 std::vector<int> RemoveLast(std::vector<int> vec) {
@@ -149,8 +152,9 @@ std::vector<float> MaxSubtract(std::vector<float> vec1, std::vector<float> vec2,
 	std::vector<float> sizeVec;
 
 	float tmpSize;
+	int len = vec1.size();
 
-	for (size_t idx = 0; idx < vec1.size(); ++idx) {
+	for (size_t idx = 0; idx < len; ++idx) {
 		tmpSize = vec1[idx] - vec2[idx] + 1;
 		if (tmpSize < minValue) { tmpSize = minValue; }
 		sizeVec.push_back(tmpSize);
@@ -164,7 +168,9 @@ std::vector<float> MultiplyDivide(std::vector<float> vec1,
 		                              std::vector<float> vec3) {
 
 	std::vector<float> resultVec;
-	for (size_t idx = 0; idx < vec1.size(); ++idx) {
+	int len = vec1.size();
+
+	for (size_t idx = 0; idx < len; ++idx) {
 		resultVec.push_back(vec1[idx] * vec2[idx] / vec3[idx]);
 	}
 
@@ -173,8 +179,9 @@ std::vector<float> MultiplyDivide(std::vector<float> vec1,
 
 std::vector<int> WhereLarger(std::vector<float> vec, float threshold) {
 	std::vector<int> resultVec;
+	int len = vec.size();
 
-	for (size_t idx = 0; idx < vec.size(); ++idx) {
+	for (size_t idx = 0; idx < len; ++idx) {
 		if (vec[idx] > threshold) {
 			resultVec.push_back(idx);
 		}
@@ -183,12 +190,12 @@ std::vector<int> WhereLarger(std::vector<float> vec, float threshold) {
 	return resultVec;
 }
 
-std::vector<int> RemoveDuplicates(std::vector<int> vec, std::vector<int> idxs) {
+std::vector<int> RemoveByIndexes(std::vector<int> vec, std::vector<int> idxs) {
 	std::vector<int> resultVec = vec;
 	int offset = 0;
 
-	for (int tmpIdx : idxs) {
-		resultVec.erase(resultVec.begin() + tmpIdx + offset);
+	for (int idx : idxs) {
+		resultVec.erase(resultVec.begin() + idx + offset);
 		offset -= 1;
 	}
 
@@ -207,12 +214,12 @@ std::vector<cv::Rect> BoxesToRectangles(std::vector<std::vector<float> > boxes) 
 }
 
 template <typename T>
-std::vector<T> FilterVector(const std::vector<T> vector, const std::vector<int> indexes) {
-	std::vector<T> resultVector;
+std::vector<T> FilterVector(const std::vector<T> vec, const std::vector<int> idxs) {
+	std::vector<T> resultVec;
 
-	for (int idx: indexes) {
-		resultVector.push_back(vector[idx]);
+	for (int idx: idxs) {
+		resultVec.push_back(vec[idx]);
 	}
 
-	return resultVector;
+	return resultVec;
 }

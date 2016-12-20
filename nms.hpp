@@ -38,7 +38,7 @@ std::vector<float> MultiplyDivide(std::vector<float> vec1,
 
 std::vector<int> WhereLarger(std::vector<float>, float);
 
-std::vector<int> RemoveDuplicates(std::vector<int>, std::vector<int>);
+std::vector<int> RemoveByIndexes(std::vector<int>, std::vector<int>);
 
 std::vector<cv::Rect> BoxesToRectangles(std::vector<std::vector<float> >);
 
