@@ -9,3 +9,6 @@ git clone https://github.com/martinkersner/non-maximum-suppression-cpp.git
 make
 ./example
 ```
+<center>
+<img src="http://i.imgur.com/qKLZOT2.png" />
+</center>
