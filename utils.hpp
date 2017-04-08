@@ -9,10 +9,12 @@
 
 const cv::Scalar WHITE_COLOR = cv::Scalar(255, 255, 255);
 
-cv::Rect VecToRect(std::vector<float>);
+cv::Rect VecToRect(const std::vector<float> &);
 
-void DrawRectangles(cv::Mat&, std::vector<std::vector<float> >);
+void DrawRectangles(cv::Mat &,
+                    const std::vector<std::vector<float>> &);
 
-void DrawRectangles(cv::Mat&, std::vector<cv::Rect>);
+void DrawRectangles(cv::Mat &,
+                    const std::vector<cv::Rect> &);
 
 #endif // UTILS_HPP__ 

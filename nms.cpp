@@ -3,25 +3,30 @@
 // C++ version of http://www.pyimagesearch.com/2015/02/16/faster-non-maximum-suppression-python/
 
 #include "nms.hpp"
+using std::vector;
+using cv::Rect;
+using cv::Point;
 
-std::vector<cv::Rect> nms(std::vector<std::vector<float> > boxes, float threshold) {
-	if (boxes.empty()) { 
-		return std::vector<cv::Rect>();
-	}
+vector<Rect> nms(const vector<vector<float>> & boxes,
+                 const float & threshold)
+{
+	if (boxes.empty())
+		return vector<Rect>();
 
 	// grab the coordinates of the bounding boxes
-	std::vector<float> x1 = GetPointFromRect(boxes, XMIN);
-	std::vector<float> y1 = GetPointFromRect(boxes, YMIN);
-	std::vector<float> x2 = GetPointFromRect(boxes, XMAX);
-	std::vector<float> y2 = GetPointFromRect(boxes, YMAX);
+	auto x1 = GetPointFromRect(boxes, XMIN);
+	auto y1 = GetPointFromRect(boxes, YMIN);
+	auto x2 = GetPointFromRect(boxes, XMAX);
+	auto y2 = GetPointFromRect(boxes, YMAX);
 
 	// compute the area of the bounding boxes and sort the bounding
 	// boxes by the bottom-right y-coordinate of the bounding box
-	std::vector<float> area = ComputeArea(x1, y1, x2, y2);
-	std::vector<int> idxs   = argsort(y2);
+	auto area = ComputeArea(x1, y1, x2, y2);
+	auto idxs = argsort(y2);
 
-	int last, i;
-	std::vector<int> pick;
+	int last;
+  int i;
+	vector<int> pick;
 
 	// keep looping while some indexes still remain in the indexes list
 	while (idxs.size() > 0) {
@@ -34,48 +39,59 @@ std::vector<cv::Rect> nms(std::vector<std::vector<float> > boxes, float threshol
 		// find the largest (x, y) coordinates for the start of
 		// the bounding box and the smallest (x, y) coordinates
 		// for the end of the bounding box
-		std::vector<int> idxsWoLast = RemoveLast(idxs);
-		std::vector<float> xx1 = Maximum(x1[i], CopyByIndexes(x1, idxsWoLast));
-		std::vector<float> yy1 = Maximum(y1[i], CopyByIndexes(y1, idxsWoLast));
-		std::vector<float> xx2 = Minimum(x2[i], CopyByIndexes(x2, idxsWoLast));
-		std::vector<float> yy2 = Maximum(y2[i], CopyByIndexes(y2, idxsWoLast));
+		auto idxsWoLast = RemoveLast(idxs);
+    auto x1Idx = CopyByIndexes(x1, idxsWoLast);
+    auto y1Idx = CopyByIndexes(y1, idxsWoLast);
+    auto x2Idx = CopyByIndexes(x2, idxsWoLast);
+    auto y2Idx = CopyByIndexes(y2, idxsWoLast);
+
+		auto xx1 = Maximum(x1[i], x1Idx);
+		auto yy1 = Maximum(y1[i], y1Idx);
+		auto xx2 = Minimum(x2[i], x2Idx);
+		auto yy2 = Maximum(y2[i], y2Idx);
 
 		// compute the width and height of the bounding box
-		std::vector<float> w = Maximum(0, Subtract(xx2, xx1));
-		std::vector<float> h = Maximum(0, Subtract(yy2, yy1));
+    auto xxSubtract = Subtract(xx2, xx1);
+    auto yySubtract = Subtract(yy2, yy1);
+		auto w = Maximum(0, xxSubtract);
+		auto h = Maximum(0, yySubtract);
 		
 		// compute the ratio of overlap
-		std::vector<float> overlap = Divide(Multiply(w, h), CopyByIndexes(area, idxsWoLast));
+    auto whMult = Multiply(w, h);
+    auto areaIdxWoLast = CopyByIndexes(area, idxsWoLast);
+		auto overlap = Divide(whMult, areaIdxWoLast);
 
 		// delete all indexes from the index list that have
-		std::vector<int> deleteIdxs = WhereLarger(overlap, threshold);
+		auto deleteIdxs = WhereLarger(overlap, threshold);
 		deleteIdxs.push_back(last);
 		idxs = RemoveByIndexes(idxs, deleteIdxs);
 	}
 
-	return BoxesToRectangles(FilterVector(boxes, pick));
+  auto boxesPick = FilterVector(boxes, pick);
+	return BoxesToRectangles(boxesPick);
 }
 
-std::vector<float> GetPointFromRect(std::vector<std::vector<float> > rect, PointInRectangle pos) {
-	std::vector<float> points;
+vector<float> GetPointFromRect(const vector<vector<float>> & rect,
+                               const PointInRectangle & pos)
+{
+	vector<float> points;
 
-	for (std::vector<float> p: rect)  {
+	for (const auto & p: rect)
 		points.push_back(p[pos]);
-	}
 
 	return points;
 }
 
-std::vector<float> ComputeArea(std::vector<float> x1,
-                               std::vector<float> y1,
-                               std::vector<float> x2,
-                               std::vector<float> y2) {
+vector<float> ComputeArea(const vector<float> & x1,
+                          const vector<float> & y1,
+                          const vector<float> & x2,
+                          const vector<float> & y2)
+{
+	vector<float> area;
+	auto len = x1.size();
 
-	std::vector<float> area;
-	int len = x1.size();
-
-	for (size_t idx = 0; idx < len; ++idx) {
-		float tmpArea = (x2[idx] - x1[idx] + 1) * (y2[idx] - y1[idx] + 1);
+	for (decltype(len) idx = 0; idx < len; ++idx) {
+		auto tmpArea = (x2[idx] - x1[idx] + 1) * (y2[idx] - y1[idx] + 1);
 		area.push_back(tmpArea);
 	}
 	
@@ -83,9 +99,10 @@ std::vector<float> ComputeArea(std::vector<float> x1,
 }
 
 template <typename T>
-std::vector<int> argsort(const std::vector<T> &v) {
+vector<int> argsort(const vector<T> & v)
+{
   // initialize original index locations
-  std::vector<int> idx(v.size());
+  vector<int> idx(v.size());
   std::iota(idx.begin(), idx.end(), 0);
 
   // sort indexes based on comparing values in v
@@ -95,102 +112,106 @@ std::vector<int> argsort(const std::vector<T> &v) {
   return idx;
 }
 
-std::vector<float> Maximum(float num, std::vector<float> vec) {
-	std::vector<float> maxVec= vec;
-	int len = vec.size();
+vector<float> Maximum(const float & num,
+                      const vector<float> & vec)
+{
+	auto maxVec = vec;
+	auto len = vec.size();
 
-	for (std::size_t idx = 0; idx < len; ++idx) {
-		if (vec[idx] < num) {
+	for (decltype(len) idx = 0; idx < len; ++idx)
+		if (vec[idx] < num)
 			maxVec[idx] = num;
-		}
-	}
 
 	return maxVec;
 }
 
-std::vector<float> Minimum(float num, std::vector<float> vec) {
-	std::vector<float> minVec= vec;
-	int len = vec.size();
+vector<float> Minimum(const float & num,
+                      const vector<float> & vec)
+{
+	auto minVec = vec;
+	auto len = vec.size();
 
-	for (std::size_t idx = 0; idx < len; ++idx) {
-		if (vec[idx] > num) {
+	for (decltype(len) idx = 0; idx < len; ++idx)
+		if (vec[idx] > num)
 			minVec[idx] = num;
-		}
-	}
 
 	return minVec;
 }
 
-std::vector<float> CopyByIndexes(std::vector<float> vec, std::vector<int> idxs) {
-	std::vector<float> resultVec;
+vector<float> CopyByIndexes(const vector<float> & vec,
+                            const vector<int> & idxs)
+{
+	vector<float> resultVec;
 
-	for (int idx : idxs) {
+	for (const auto & idx : idxs)
 		resultVec.push_back(vec[idx]);
-}
 
 	return resultVec;
 }
 
-std::vector<int> RemoveLast(std::vector<int> vec) {
-	vec.erase(vec.end()-1);
-	return vec;
+vector<int> RemoveLast(const vector<int> & vec)
+{
+  auto resultVec = vec;
+	resultVec.erase(resultVec.end()-1);
+  return resultVec;
 }
 
-std::vector<float> Subtract(std::vector<float> vec1, std::vector<float> vec2) {
-	std::vector<float> result;
-	int len = vec1.size();
+vector<float> Subtract(const vector<float> & vec1,
+                       const vector<float> & vec2)
+{
+	vector<float> result;
+	auto len = vec1.size();
 
-	for (size_t idx = 0; idx < len; ++idx) {
+	for (decltype(len) idx = 0; idx < len; ++idx)
 		result.push_back(vec1[idx] - vec2[idx] + 1);
-	}
 
 	return result;
 }
 
-std::vector<float> Multiply(std::vector<float> vec1,
-		                        std::vector<float> vec2) {
+vector<float> Multiply(const vector<float> & vec1,
+		                   const vector<float> & vec2)
+{
+	vector<float> resultVec;
+	auto len = vec1.size();
 
-	std::vector<float> resultVec;
-	int len = vec1.size();
-
-	for (size_t idx = 0; idx < len; ++idx) {
+	for (decltype(len) idx = 0; idx < len; ++idx)
 		resultVec.push_back(vec1[idx] * vec2[idx]);
-	}
 
 	return resultVec;
 }
 
-std::vector<float> Divide(std::vector<float> vec1,
-		                      std::vector<float> vec2) {
+vector<float> Divide(const vector<float> & vec1,
+		                 const vector<float> & vec2)
+{
+	vector<float> resultVec;
+	auto len = vec1.size();
 
-	std::vector<float> resultVec;
-	int len = vec1.size();
-
-	for (size_t idx = 0; idx < len; ++idx) {
+	for (decltype(len) idx = 0; idx < len; ++idx)
 		resultVec.push_back(vec1[idx] / vec2[idx]);
-	}
 
 	return resultVec;
 }
 
-std::vector<int> WhereLarger(std::vector<float> vec, float threshold) {
-	std::vector<int> resultVec;
-	int len = vec.size();
+vector<int> WhereLarger(const vector<float> & vec,
+                        const float & threshold)
+{
+	vector<int> resultVec;
+	auto len = vec.size();
 
-	for (size_t idx = 0; idx < len; ++idx) {
-		if (vec[idx] > threshold) {
+	for (decltype(len) idx = 0; idx < len; ++idx)
+		if (vec[idx] > threshold)
 			resultVec.push_back(idx);
-		}
-	}
 
 	return resultVec;
 }
 
-std::vector<int> RemoveByIndexes(std::vector<int> vec, std::vector<int> idxs) {
-	std::vector<int> resultVec = vec;
-	int offset = 0;
+vector<int> RemoveByIndexes(const vector<int> & vec,
+                            const vector<int> & idxs)
+{
+	auto resultVec = vec;
+	auto offset = 0;
 
-	for (int idx : idxs) {
+	for (const auto & idx : idxs) {
 		resultVec.erase(resultVec.begin() + idx + offset);
 		offset -= 1;
 	}
@@ -198,24 +219,25 @@ std::vector<int> RemoveByIndexes(std::vector<int> vec, std::vector<int> idxs) {
 	return resultVec;
 }
 
-std::vector<cv::Rect> BoxesToRectangles(std::vector<std::vector<float> > boxes) {
-	std::vector<cv::Rect> rectangles;
-	std::vector<float> box;
+vector<Rect> BoxesToRectangles(const vector<vector<float>> & boxes)
+{
+  vector<Rect> rectangles;
+  vector<float> box;
 
-	for (std::vector<float> box: boxes) {
-		rectangles.push_back(cv::Rect(cv::Point(box[0], box[1]), cv::Point(box[2], box[3])));
-	}
+  for (const auto & box: boxes)
+    rectangles.push_back(Rect(Point(box[0], box[1]), Point(box[2], box[3])));
 
-	return rectangles;
+  return rectangles;
 }
 
 template <typename T>
-std::vector<T> FilterVector(const std::vector<T> vec, const std::vector<int> idxs) {
-	std::vector<T> resultVec;
+vector<T> FilterVector(const vector<T> & vec,
+    const vector<int> & idxs)
+{
+  vector<T> resultVec;
 
-	for (int idx: idxs) {
-		resultVec.push_back(vec[idx]);
-	}
+  for (const auto & idx: idxs)
+    resultVec.push_back(vec[idx]);
 
-	return resultVec;
+  return resultVec;
 }

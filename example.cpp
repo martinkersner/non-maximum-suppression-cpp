@@ -7,7 +7,8 @@
 #include "utils.hpp"
 #include "nms.hpp"
 
-int main() {
+int main()
+{
 	// initialization
 	cv::Mat imgBefore(cv::Size(500, 500), cv::DataType<float>::type);
 	cv::Mat imgAfter = imgBefore.clone();
