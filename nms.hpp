@@ -17,9 +17,9 @@ std::vector<float> GetPointFromRect(const std::vector<std::vector<float>> &,
                                     const PointInRectangle &);
 
 std::vector<float> ComputeArea(const std::vector<float> &,
-															 const std::vector<float> &,
-															 const std::vector<float> &,
-															 const std::vector<float> &);
+                               const std::vector<float> &,
+                               const std::vector<float> &,
+                               const std::vector<float> &);
 
 template <typename T>
 std::vector<int> argsort(const std::vector<T> & v);
