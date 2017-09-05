@@ -44,7 +44,7 @@ vector<Rect> nms(const vector<vector<float>> & boxes,
     auto xx1 = Maximum(x1[i], CopyByIndexes(x1, idxsWoLast));
     auto yy1 = Maximum(y1[i], CopyByIndexes(y1, idxsWoLast));
     auto xx2 = Minimum(x2[i], CopyByIndexes(x2, idxsWoLast));
-    auto yy2 = Maximum(y2[i], CopyByIndexes(y2, idxsWoLast));
+    auto yy2 = Minimum(y2[i], CopyByIndexes(y2, idxsWoLast));
 
 		// compute the width and height of the bounding box
     auto w = Maximum(0, Subtract(xx2, xx1));
